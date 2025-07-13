@@ -1,5 +1,7 @@
 import { AppSidebar } from '@/components/app-sidebar'
-import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
+import HeaderBreadcrumb from '@/components/header-breadcrumb'
+import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
+import { Separator } from '@radix-ui/react-separator'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { cookies } from 'next/headers'
@@ -22,7 +24,8 @@ export const metadata: Metadata = {
 
 async function RootLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies()
-  const defaultOpen = cookieStore.get('sidebar_state')?.value === 'true'
+  const defaultOpen = !!cookieStore.get("sidebar_state")?.value
+  // cookieStore.get('sidebar_state')?.value === 'true'
 
   return (
     <html lang='en'>
@@ -31,7 +34,19 @@ async function RootLayout({ children }: { children: React.ReactNode }) {
         <SidebarProvider defaultOpen={defaultOpen}>
           <AppSidebar />
           <main>
-            <SidebarTrigger />
+            {/* <SidebarTrigger /> */}
+            <SidebarInset>
+              <header className='flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12'>
+                <div className='flex items-center gap-2 px-4'>
+                  <SidebarTrigger className='-ml-1' />
+                  <Separator
+                    orientation='vertical'
+                    className='mr-2 data-[orientation=vertical]:h-4'
+                  />
+                  <HeaderBreadcrumb />
+                </div>
+              </header>
+            </SidebarInset>
             {children}
           </main>
         </SidebarProvider>
