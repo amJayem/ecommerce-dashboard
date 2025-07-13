@@ -33,9 +33,9 @@ export default function HeaderBreadcrumb() {
                 <BreadcrumbLink asChild>
                   <Link href={c.href}>{c.label}</Link>
                 </BreadcrumbLink>
-                <BreadcrumbSeparator />
               </>
             )}
+            <BreadcrumbSeparator />
           </BreadcrumbItem>
         ))}
       </BreadcrumbList>
