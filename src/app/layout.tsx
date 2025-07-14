@@ -1,11 +1,14 @@
 import { AppSidebar } from '@/components/app-sidebar'
+import HeaderBreadcrumb from '@/components/header-breadcrumb'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
+import QueryClientProviderWrapper from '@/providers/query-client-provider'
 import { Separator } from '@radix-ui/react-separator'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { cookies } from 'next/headers'
+import { Toaster } from 'react-hot-toast'
 import './globals.css'
-import HeaderBreadcrumb from '@/components/header-breadcrumb'
+
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -31,24 +34,27 @@ async function RootLayout({ children }: { children: React.ReactNode }) {
     <html lang='en'>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <SidebarProvider defaultOpen={defaultOpen}>
-          <AppSidebar />
-          <main className='w-full'>
-            <SidebarInset>
-              <header className='flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12'>
-                <div className='flex items-center gap-2 px-4'>
-                  <SidebarTrigger className='-ml-1' />
-                  <Separator
-                    orientation='vertical'
-                    className='mr-2 data-[orientation=vertical]:h-4'
-                  />
-                  <HeaderBreadcrumb />
-                </div>
-              </header>
-            </SidebarInset>
-            {children}
-          </main>
-        </SidebarProvider>
+        <Toaster />
+        <QueryClientProviderWrapper>
+          <SidebarProvider defaultOpen={defaultOpen}>
+            <AppSidebar />
+            <main className='w-full'>
+              <SidebarInset>
+                <header className='flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12'>
+                  <div className='flex items-center gap-2 px-4'>
+                    <SidebarTrigger className='-ml-1' />
+                    <Separator
+                      orientation='vertical'
+                      className='mr-2 data-[orientation=vertical]:h-4'
+                    />
+                    <HeaderBreadcrumb />
+                  </div>
+                </header>
+              </SidebarInset>
+              {children}
+            </main>
+          </SidebarProvider>
+        </QueryClientProviderWrapper>
       </body>
     </html>
   )
