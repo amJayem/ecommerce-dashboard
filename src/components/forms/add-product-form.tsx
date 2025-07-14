@@ -12,9 +12,9 @@ import {
 } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
+import { useCreateProduct } from '@/hooks/use-products'
 import { productSchema } from '@/lib/validations/product-schema'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useState } from 'react'
 import {
   Controller,
   FormProvider,
@@ -22,6 +22,7 @@ import {
   SubmitHandler,
   useForm
 } from 'react-hook-form'
+import toast from 'react-hot-toast'
 import { z } from 'zod'
 import { FormControl, FormItem, FormLabel } from '../ui/form'
 
@@ -34,7 +35,8 @@ const categories = [
 ]
 
 export function AddProductForm() {
-  const [submitting, setSubmitting] = useState(false)
+
+  const { mutateAsync, isPending } = useCreateProduct();
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema) as Resolver<ProductFormValues>,
@@ -66,9 +68,18 @@ export function AddProductForm() {
   const onSubmit: SubmitHandler<ProductFormValues> = async (
     data: ProductFormValues
   ) => {
-    setSubmitting(true)
-    console.log(data)
-    setTimeout(() => setSubmitting(false), 1000) // Simulate request
+    try {
+      await mutateAsync({
+        name: data?.name,
+        price: data?.price,
+        description: data?.description,
+      });
+      toast.success("Product created!");
+      form.reset();               // clear the form
+    } catch (err: any) {
+      toast.error(err.message);
+    }
+
   }
 
   return (
@@ -257,8 +268,8 @@ export function AddProductForm() {
         <Button
           type='submit'
           className='bg-teal-600 hover:bg-teal-700'
-          disabled={submitting}>
-          {submitting ? 'Submitting...' : 'Add Product'}
+          disabled={isPending}>
+          {isPending ? 'Submitting...' : 'Add Product'}
         </Button>
       </form>
     </FormProvider>
