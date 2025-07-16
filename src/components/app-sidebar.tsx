@@ -40,46 +40,103 @@ const data = {
     avatar: '/avatars/shadcn.jpg'
   },
   navMain: [
+    // ───────────────────────────────────── Dashboard root
     {
-      title: 'Dashboard',
-      url: '/dashboard',
+      title: "Dashboard",
+      url: "/dashboard",
       icon: LayoutDashboard,
-      isActive: true
-      // items: [  { title: "All Products", url: "/" },],
+      isActive: true,
     },
+
+    // ───────────────────────────────────── Products
     {
-      title: 'Products',
-      url: '/products',
+      title: "Products",
+      url: "/dashboard/products",
       icon: Package,
       isActive: true,
       items: [
-        { title: 'All Products', url: '/products' },
-        { title: 'Add Product', url: '/products/new' },
-        { title: 'Categories', url: '/products/categories' },
-        { title: 'Variants', url: '/products/variants' }
-      ]
+        { title: "All Products", url: "/dashboard/products" },
+        { title: "Add Product", url: "/dashboard/products/new" },
+        { title: "Categories", url: "/dashboard/products/categories" },
+        { title: "Variants", url: "/dashboard/products/variants" },
+      ],
     },
+
+    // ───────────────────────────────────── Orders
     {
-      title: 'Orders',
-      url: '/orders',
+      title: "Orders",
+      url: "/dashboard/orders",
       icon: ShoppingCart,
       isActive: true,
       items: [
-        { title: 'All Orders', url: '/orders' },
-        { title: 'Pending', url: '/orders/pending' },
-        { title: 'Completed', url: '/orders/completed' },
-        { title: 'Returns', url: '/orders/returns' }
-      ]
+        { title: "All Orders", url: "/dashboard/orders" },
+        { title: "Pending", url: "/dashboard/orders/pending" },
+        { title: "Completed", url: "/dashboard/orders/completed" },
+        { title: "Returns", url: "/dashboard/orders/returns" },
+      ],
     },
+
+    // ───────────────────────────────────── Customers
     {
-      title: 'Customers',
-      url: '/customers',
+      title: "Customers",
+      url: "/dashboard/customers",
       icon: Users,
       isActive: true,
       items: [
-        { title: 'Customer List', url: '/customers' },
-        { title: 'Reviews', url: '/customers/reviews' }
-      ]
+        { title: "Customer List", url: "/dashboard/customers" },
+        { title: "Reviews", url: "/dashboard/customers/reviews" },
+      ],
+    },
+
+    // ───────────────────────────────────── Discounts
+    {
+      title: "Discounts",
+      url: "/dashboard/discounts",
+      icon: Tag,
+      isActive: false, // set true when pages exist
+      items: [
+        { title: "Coupons", url: "/dashboard/discounts/coupons" },
+        { title: "Campaigns", url: "/dashboard/discounts/campaigns" },
+      ],
+    },
+
+    // ───────────────────────────────────── Analytics
+    {
+      title: "Analytics",
+      url: "/dashboard/analytics",
+      icon: BarChart,
+      isActive: false,
+      items: [
+        { title: "Sales Report", url: "/dashboard/analytics/sales" },
+        { title: "Product Performance", url: "/dashboard/analytics/products" },
+        { title: "Customer Insights", url: "/dashboard/analytics/customers" },
+      ],
+    },
+
+    // ───────────────────────────────────── Access Control
+    {
+      title: "Access Control",
+      url: "/dashboard/access-control",
+      icon: ShieldCheck,
+      isActive: true,
+      items: [
+        { title: "Users", url: "/dashboard/access-control/users" },
+        { title: "Roles", url: "/dashboard/access-control/roles" },
+        { title: "Activity Logs", url: "/dashboard/access-control/logs" },
+      ],
+    },
+
+    // ───────────────────────────────────── Settings
+    {
+      title: "Settings",
+      url: "/dashboard/settings",
+      icon: Settings,
+      isActive: true,
+      items: [
+        { title: "Profile", url: "/dashboard/settings/profile" },
+        { title: "Notifications", url: "/dashboard/settings/notifications" },
+        { title: "Billing", url: "/dashboard/settings/billing" },
+      ],
     },
     // {
     //   title: 'Payments',
@@ -91,27 +148,7 @@ const data = {
     //     { title: 'Refunds', url: '/payments/refunds' }
     //   ]
     // },
-    {
-      title: 'Discounts',
-      url: '/discounts',
-      isActive: !true,
-      icon: Tag,
-      items: [
-        { title: 'Coupons', url: '/discounts/coupons' },
-        { title: 'Campaigns', url: '/discounts/campaigns' }
-      ]
-    },
-    {
-      title: 'Analytics',
-      url: '/analytics',
-      icon: BarChart,
-      isActive: !true,
-      items: [
-        { title: 'Sales Report', url: '/analytics/sales' },
-        { title: 'Product Performance', url: '/analytics/products' },
-        { title: 'Customer Insights', url: '/analytics/customers' }
-      ]
-    },
+
     // {
     //   title: 'Shipping',
     //   url: '/shipping',
@@ -132,17 +169,7 @@ const data = {
     //     { title: 'Payments', url: '/store-settings/payments' }
     //   ]
     // },
-    {
-      title: 'Access Control',
-      url: '/access-control',
-      icon: ShieldCheck,
-      isActive: true,
-      items: [
-        { title: 'Users', url: '/access-control/users' },
-        { title: 'Roles', url: '/access-control/roles' },
-        { title: 'Activity Logs', url: '/access-control/logs' }
-      ]
-    },
+
     // {
     //   title: 'Support',
     //   url: '/support',
@@ -152,65 +179,8 @@ const data = {
     //     { title: 'FAQs', url: '/support/faqs' }
     //   ]
     // },
-    {
-      title: 'Settings',
-      url: '/settings',
-      icon: Settings,
-      items: [
-        { title: 'Profile', url: '/settings/profile' },
-        { title: 'Notifications', url: '/settings/notifications' },
-        { title: 'Billing', url: '/settings/billing' }
-      ]
-    }
   ],
-  navClouds: [
-    {
-      title: 'Capture',
-      icon: 'IconCamera',
-      isActive: true,
-      url: '#',
-      items: [
-        {
-          title: 'Active Proposals',
-          url: '#'
-        },
-        {
-          title: 'Archived',
-          url: '#'
-        }
-      ]
-    },
-    {
-      title: 'Proposal',
-      icon: 'IconFileDescription',
-      url: '#',
-      items: [
-        {
-          title: 'Active Proposals',
-          url: '#'
-        },
-        {
-          title: 'Archived',
-          url: '#'
-        }
-      ]
-    },
-    {
-      title: 'Prompts',
-      icon: 'IconFileAi',
-      url: '#',
-      items: [
-        {
-          title: 'Active Proposals',
-          url: '#'
-        },
-        {
-          title: 'Archived',
-          url: '#'
-        }
-      ]
-    }
-  ],
+
   navSecondary: [
     {
       title: 'Settings',
@@ -254,48 +224,51 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel>Platform</SidebarGroupLabel>
           <SidebarMenu>
-            {data?.navMain.map((item) => item?.items?.length ? (
-
-              <Collapsible
-                key={item.title}
-                asChild
-                defaultOpen={item.isActive}
-                className='group/collapsible'>
-                <SidebarMenuItem>
-                  <CollapsibleTrigger asChild>
-                    <SidebarMenuButton tooltip={item.title}>
-                      {item.icon && <item.icon />}
-                      <span>{item.title}</span>
-                      <ChevronRight className='ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90' />
-                    </SidebarMenuButton>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <SidebarMenuSub>
-                      {item.items?.map((subItem) => (
-                        <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton asChild>
-                            <Link href={subItem.url}>
-                              <span>{subItem.title}</span>
-                            </Link>
-                            {/* <a href={subItem.url}>
+            {data?.navMain.map((item) =>
+              item?.items?.length ? (
+                <Collapsible
+                  key={item.title}
+                  asChild
+                  defaultOpen={item.isActive}
+                  className='group/collapsible'>
+                  <SidebarMenuItem>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton tooltip={item.title}>
+                        {item.icon && <item.icon />}
+                        <span>{item.title}</span>
+                        <ChevronRight className='ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90' />
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <SidebarMenuSub>
+                        {item.items?.map((subItem) => (
+                          <SidebarMenuSubItem key={subItem.title}>
+                            <SidebarMenuSubButton asChild>
+                              <Link href={subItem.url}>
+                                <span>{subItem.title}</span>
+                              </Link>
+                              {/* <a href={subItem.url}>
                               <span>{subItem.title}</span>
                             </a> */}
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      ))}
-                    </SidebarMenuSub>
-                  </CollapsibleContent>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        ))}
+                      </SidebarMenuSub>
+                    </CollapsibleContent>
+                  </SidebarMenuItem>
+                </Collapsible>
+              ) : (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild tooltip={item.title}>
+                    <Link
+                      href={item.url ?? '/'}
+                      className='flex items-center gap-2'>
+                      {item.icon && <item.icon />}
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
                 </SidebarMenuItem>
-              </Collapsible>
-            ) :
-              <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild tooltip={item.title}>
-                  <Link href={item.url ?? "/"} className="flex items-center gap-2">
-                    {item.icon && <item.icon />}
-                    <span>{item.title}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              )
             )}
           </SidebarMenu>
         </SidebarGroup>
