@@ -1,9 +1,7 @@
-import { Button } from "@/components/ui/button";
+import DashboardPage from "./dashboard/page";
 
 export default function Home() {
   return (
-    <main className="p-6">
-      <Button variant="default">Click Me</Button>
-    </main>
+    <DashboardPage />
   );
 }
