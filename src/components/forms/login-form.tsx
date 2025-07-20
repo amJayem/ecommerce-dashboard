@@ -15,7 +15,7 @@ export function LoginForm() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  const form = useForm<LoginFormValues>({
+  const react_hook_form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",
@@ -24,15 +24,21 @@ export function LoginForm() {
   });
 
   const onSubmit = async (data: LoginFormValues) => {
+
     // router.push('/dashboard')
     setLoading(true)
     try {
       const res = await api.post('/auth/login', data)
       const { access_token } = res.data
+      console.log('Login successful - login form', { access_token })
       localStorage.setItem('token', access_token)
       toast.success('Login successful!')
-      router.push('/dashboard')
+      // router.push('/dashboard')
+      setTimeout(() => {
+        router.push('/dashboard')
+      }, 100)
     } catch (err: any) {
+      console.log('login error -> login-form')
       toast.error(err.response?.data?.message || 'Login failed')
     } finally {
       setLoading(false)
@@ -41,18 +47,18 @@ export function LoginForm() {
 
   return (
     <form
-      onSubmit={form.handleSubmit(onSubmit)}
+      onSubmit={react_hook_form.handleSubmit(onSubmit)}
       className="space-y-4 max-w-sm mx-auto"
     >
       <Input
         placeholder="Email"
-        {...form.register("email")}
+        {...react_hook_form.register("email")}
         disabled={loading}
       />
       <Input
         placeholder="Password"
         type="password"
-        {...form.register("password")}
+        {...react_hook_form.register("password")}
         disabled={loading}
       />
       <Button type="submit" className="w-full" disabled={loading}>
