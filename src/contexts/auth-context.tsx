@@ -1,8 +1,9 @@
 // src/contexts/auth-context.tsx
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
 import { api } from '@/lib/axios'
+import { createContext, useContext, useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation';
 
 type User = {
   id: string
@@ -28,28 +29,26 @@ const AuthContext = createContext<AuthContextType>({
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL
+  const pathname = usePathname();
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (token) {
+    // Only fetch /me if not on the login page
+    if (pathname !== '/login') {
       api
-        .get(`${baseUrl}/me`)
+        .get(`/me`)
         .then((res) => {
           setUser(res.data)
         })
         .catch(() => {
-          localStorage.removeItem('token')
+          setUser(null)
         })
         .finally(() => setLoading(false))
     } else {
       setLoading(false)
     }
-  }, [])
+  }, [pathname])
 
   const logout = () => {
-    localStorage.removeItem('token')
     setUser(null)
     window.location.href = '/login'
   }

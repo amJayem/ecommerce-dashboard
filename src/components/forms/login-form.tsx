@@ -28,14 +28,18 @@ export function LoginForm() {
   const onSubmit = async (data: LoginFormValues) => {
     setLoading(true);
     try {
-      const res = await api.post("/auth/login", data);
-      const { access_token } = res.data;
-      // Cookies.set("token", access_token, { expires: 7 }); // Set cookie to expire in 7 days
-      localStorage.setItem('token', access_token)
+      await api.post("/auth/login", data);
+      // No need to store token in localStorage, backend sets cookie
       toast.success("Login successful!");
       router.push("/dashboard");
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || "Login failed");
+    } catch (err: unknown) {
+      // Type guard for error
+      if (err && typeof err === 'object' && 'response' in err) {
+        const error = err as { response?: { data?: { message?: string } } };
+        toast.error(error.response?.data?.message || "Login failed");
+      } else {
+        toast.error("Login failed");
+      }
     } finally {
       setLoading(false);
     }

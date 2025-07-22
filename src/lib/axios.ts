@@ -1,30 +1,67 @@
 // src/lib/axios.ts
-import axios from 'axios'
+import axios from "axios";
 
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   withCredentials: true, // ✅ most important part
   headers: {
-    'Content-Type': 'application/json'
-  }
-})
+    "Content-Type": "application/json",
+  },
+});
 
-// Optional: add auth token automatically
-api.interceptors.request.use((config) => {
-  if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('token')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
+type FailedQueueItem = {
+  resolve: (value?: unknown) => void;
+  reject: (reason?: unknown) => void;
+};
+
+let isRefreshing = false;
+let failedQueue: FailedQueueItem[] = [];
+
+function processQueue(error: unknown, token: string | null = null) {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
     }
-  }
-  return config
-})
+  });
+  failedQueue = [];
+}
 
-// Optional: global error handler
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    const message = error.response?.data?.message || 'Something went wrong'
-    return Promise.reject(new Error(message))
+  async (error) => {
+    const originalRequest = error.config;
+    // Prevent infinite refresh loop: do not refresh if the failed request is to /auth/refresh
+    if (
+      error.response &&
+      error.response.status === 401 &&
+      !originalRequest._retry &&
+      !(originalRequest.url && originalRequest.url.endsWith('/auth/refresh'))
+    ) {
+      if (isRefreshing) {
+        return new Promise(function(resolve, reject) {
+          failedQueue.push({resolve, reject});
+        })
+        .then(() => api(originalRequest))
+        .catch((err) => Promise.reject(err));
+      }
+      originalRequest._retry = true;
+      isRefreshing = true;
+      try {
+        await api.post('/auth/refresh', {}); // backend uses cookie
+        processQueue(null);
+        return api(originalRequest);
+      } catch (refreshError) {
+        processQueue(refreshError, null);
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login';
+        }
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
+      }
+    }
+    return Promise.reject(error);
   }
 )
