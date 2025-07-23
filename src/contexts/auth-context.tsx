@@ -3,7 +3,7 @@
 
 import { api } from '@/lib/axios'
 import { createContext, useContext, useEffect, useState } from 'react'
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 type User = {
   id: string
@@ -30,6 +30,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     // Only fetch /me if not on the login page
@@ -38,15 +39,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .get(`/me`)
         .then((res) => {
           setUser(res.data)
+          setLoading(false)
         })
-        .catch(() => {
-          setUser(null)
+        .catch(async (err) => {
+          // If unauthorized, try to refresh
+          if (err.response && err.response.status === 401) {
+            try {
+              await api.post('/auth/refresh', {}) // withCredentials: true is set globally
+              // Try /me again after refresh
+              const res = await api.get('/me')
+              setUser(res.data)
+            } catch {
+              setUser(null)
+              router.push('/login')
+            }
+          } else {
+            setUser(null)
+          }
+          setLoading(false)
         })
-        .finally(() => setLoading(false))
     } else {
       setLoading(false)
     }
-  }, [pathname])
+  }, [pathname, router])
 
   const logout = () => {
     setUser(null)
