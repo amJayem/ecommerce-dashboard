@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
-import { useCreateProduct } from '@/hooks/use-products'
+import { useCreateProduct, useProduct, useUpdateProduct } from '@/hooks/use-products';
 import { productSchema } from '@/lib/validations/product-schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
@@ -23,10 +23,24 @@ import {
   useForm
 } from 'react-hook-form'
 import toast from 'react-hot-toast'
-import { z } from 'zod'
 import { FormControl, FormItem, FormLabel } from '../ui/form'
+import { useEffect } from 'react';
 
-type ProductFormValues = z.infer<typeof productSchema>
+type ProductFormValues = {
+  name: string;
+  slug: string;
+  description: string;
+  price: number;
+  salePrice?: number;
+  stock: number;
+  categoryId: string;
+  images: string[];
+  status: string;
+  isFeatured: boolean;
+  brand: string;
+  tags: string[];
+  sku: string;
+};
 
 const categories = [
   { id: 'cat1', name: 'Fruits' },
@@ -34,52 +48,88 @@ const categories = [
   { id: 'cat3', name: 'Oils' }
 ]
 
-export function AddProductForm() {
+interface AddProductFormProps {
+  productId?: string | null;
+}
 
+export function AddProductForm({ productId }: AddProductFormProps) {
   const { mutateAsync, isPending } = useCreateProduct();
+  const { mutateAsync: updateProduct } = useUpdateProduct();
+  const { data: product, isLoading: isProductLoading } = useProduct(productId ? Number(productId) : undefined);
+
+  const defaultValues: ProductFormValues = {
+    name: '',
+    slug: '',
+    description: '',
+    price: 0,
+    salePrice: undefined,
+    stock: 0,
+    categoryId: '',
+    images: [''],
+    status: 'draft',
+    isFeatured: false,
+    brand: '',
+    tags: [],
+    sku: ''
+  };
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema) as Resolver<ProductFormValues>,
-    defaultValues: {
-      name: '',
-      slug: '',
-      description: '',
-      price: 0,
-      salePrice: undefined,
-      stock: 0,
-      categoryId: '',
-      images: [''],
-      status: 'draft',
-      isFeatured: false,
-      brand: '',
-      tags: [],
-      sku: ''
-    }
-  })
+    defaultValues,
+  });
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     setValue,
-    watch
-  } = form
+    watch,
+    reset
+  } = form;
 
-  const onSubmit: SubmitHandler<ProductFormValues> = async (
-    data: ProductFormValues
-  ) => {
-    try {
-      await mutateAsync({
-        name: data?.name,
-        price: data?.price,
-        description: data?.description,
+  useEffect(() => {
+    if (product && productId) {
+      reset({
+        ...product,
+        images: Array.isArray(product.images)
+          ? product.images
+          : typeof product.images === 'string'
+          ? [product.images]
+          : [],
+        tags: Array.isArray(product.tags)
+          ? product.tags
+          : typeof product.tags === 'string'
+          ? [product.tags]
+          : [],
       });
-      toast.success("Product created!");
-      form.reset();               // clear the form
-    } catch (err: any) {
-      toast.error(err.message);
     }
+  }, [product, productId, reset]);
 
+  const onSubmit: SubmitHandler<ProductFormValues> = async (data) => {
+    try {
+      if (productId) {
+        await updateProduct({ id: Number(productId), ...data });
+        toast.success('Product updated!');
+      } else {
+        await mutateAsync({
+          ...data,
+          id: 0, // dummy, backend should ignore or generate
+          imageUrl: data.images[0] || '', // use first image as main image
+          salePrice: data.salePrice ?? 0,
+          brand: data.brand ?? '',
+          sku: data.sku ?? '',
+        });
+        toast.success('Product created!');
+        form.reset();
+      }
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : 'An error occurred';
+      toast.error(errorMsg);
+    }
+  };
+
+  if (isProductLoading) {
+    return <div>Loading product...</div>;
   }
 
   return (

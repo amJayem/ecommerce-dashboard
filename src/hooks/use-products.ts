@@ -23,3 +23,37 @@ export function useCreateProduct() {
     }
   })
 }
+
+export function useUpdateProduct() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ id, ...data }: Partial<Product> & { id: number }) =>
+      (await api.put(`/products/${id}`, data)).data,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: PRODUCTS_KEY })
+    }
+  })
+}
+
+export function useDeleteProduct() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (id: number) => (await api.delete(`/products/${id}`)).data,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: PRODUCTS_KEY })
+    }
+  })
+}
+
+export function useProduct(id: number | string | undefined) {
+  return useQuery({
+    queryKey: ["product", id],
+    queryFn: async () => {
+      if (!id) return null;
+      return (await api.get(`/products/${id}`)).data;
+    },
+    enabled: !!id,
+  });
+}

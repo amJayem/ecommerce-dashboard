@@ -3,15 +3,17 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+import { useSearchParams } from "next/navigation";
 
 export default function HeaderBreadcrumb() {
   const pathname = usePathname();          // "/products/new"
+  const searchParams = useSearchParams();
   const segments = pathname.split("/").filter(Boolean); // ["products","new"]
 
   // Map each segment to a label. This can live in a helper file.
   const label: Record<string, string> = {
     products: "Products",
-    new: "Add Product",
+    new: searchParams.get("id") ? "Edit Product" : "Add Product",
     orders: "Orders",
     // …etc.
   };
