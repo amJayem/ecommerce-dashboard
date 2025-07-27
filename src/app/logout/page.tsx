@@ -1,11 +1,15 @@
 "use client";
-import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/auth-context";
 import { useEffect } from "react";
+import { PageLoading } from "@/components/ui/loading";
 
 export default function LogoutPage() {
-  const router = useRouter();
+  const { logout } = useAuth();
+
   useEffect(() => {
-    router.replace("/login");
-  }, [router]);
-  return null;
+    // Call logout function which will handle backend logout and redirect
+    logout().catch(console.error);
+  }, [logout]);
+
+  return <PageLoading />;
 } 

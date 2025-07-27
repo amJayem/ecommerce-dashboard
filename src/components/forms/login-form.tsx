@@ -3,18 +3,14 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-// import { loginSchema, LoginFormValues } from "@/lib/validations/auth-schema";
 import { LoginFormValues, loginSchema } from "@/lib/validations/auth";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { api } from "@/lib/axios";
-import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
-// import Cookies from "js-cookie";
+import { useAuthActions } from "@/hooks/use-auth";
 
 export function LoginForm() {
-  const router = useRouter();
+  const { handleLogin } = useAuthActions();
   const [loading, setLoading] = useState(false);
 
   const form = useForm<LoginFormValues>({
@@ -27,19 +23,14 @@ export function LoginForm() {
 
   const onSubmit = async (data: LoginFormValues) => {
     setLoading(true);
+    console.log('🔐 Login form: Starting login process for:', data.email);
+    
     try {
-      await api.post("/auth/login", data);
-      // No need to store token in localStorage, backend sets cookie
-      toast.success("Login successful!");
-      router.push("/dashboard");
-    } catch (err: unknown) {
-      // Type guard for error
-      if (err && typeof err === 'object' && 'response' in err) {
-        const error = err as { response?: { data?: { message?: string } } };
-        toast.error(error.response?.data?.message || "Login failed");
-      } else {
-        toast.error("Login failed");
-      }
+      await handleLogin(data.email, data.password);
+      console.log('✅ Login form: Login process completed successfully');
+    } catch (error) {
+      console.error('❌ Login form: Login process failed:', error);
+      // Error is already handled in the hook
     } finally {
       setLoading(false);
     }
