@@ -43,8 +43,11 @@ export default function NewUserPage() {
       await api.post("/auth/register", data); // Backend endpoint
       toast.success("User registered successfully");
       form.reset();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Registration failed");
+    } catch (error: unknown) {
+      const errorMessage = error && typeof error === 'object' && 'response' in error 
+        ? (error as { response?: { data?: { message?: string } } }).response?.data?.message 
+        : "Registration failed";
+      toast.error(errorMessage || "Registration failed");
     } finally {
       setIsLoading(false);
     }
@@ -76,7 +79,7 @@ export default function NewUserPage() {
           <Label htmlFor="role">Role</Label>
           <Select
             defaultValue="moderator"
-            onValueChange={(value) => setValue("role", value as any)}
+            onValueChange={(value) => setValue("role", value as "admin" | "moderator" | "support" | "inspector")}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select role" />

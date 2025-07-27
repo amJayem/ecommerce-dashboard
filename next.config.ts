@@ -1,14 +1,15 @@
-import type { NextConfig } from 'next'
+import type { NextConfig } from "next";
+
+const imageDomains =
+  process.env.NEXT_PUBLIC_IMAGE_DOMAINS?.split(",").map((domain) =>
+    domain.trim()
+  ) || [];
+console.log(imageDomains);
 
 const nextConfig: NextConfig = {
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: 'http://localhost:3333/api/:path*' // ✅ point to NestJS backend
-      }
-    ]
-  }
-}
+  images: {
+    domains: imageDomains,
+  },
+};
 
-export default nextConfig
+export default nextConfig;

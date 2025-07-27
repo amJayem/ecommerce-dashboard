@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useProducts, useDeleteProduct } from "@/hooks/use-products";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -93,10 +94,12 @@ export default function AllProductsPage() {
                   </td>
                   <td className="px-6 py-4">
                     {product.imageUrl && (
-                      <img
+                      <Image
                         src={product.imageUrl}
                         alt={product.name}
-                        className="w-12 h-12 object-cover rounded border"
+                        width={48}
+                        height={48}
+                        className="object-cover rounded border"
                       />
                     )}
                   </td>
