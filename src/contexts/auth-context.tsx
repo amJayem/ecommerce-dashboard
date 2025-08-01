@@ -56,7 +56,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       if (response.data.user) {
         setUser(response.data.user)
-        router.push('/dashboard')
+        console.log('🔐 Setting user and redirecting to dashboard...')
+        
+        // Force a small delay to ensure state is updated
+        setTimeout(() => {
+          router.push('/dashboard')
+        }, 100)
       } else {
         throw new Error('No user data in response')
       }

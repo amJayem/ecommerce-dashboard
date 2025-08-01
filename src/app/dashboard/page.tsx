@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { LogoutButton } from '@/components/logout-button'
 import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 
 export default function DashboardPage() {
   const { user, isLoggedIn, loading } = useAuth()
@@ -14,6 +15,17 @@ export default function DashboardPage() {
   const handleLogin = () => {
     router.push('/login')
   }
+
+  // Debug logging for production
+  useEffect(() => {
+    console.log('🔍 Dashboard Debug:', {
+      loading,
+      isLoggedIn,
+      user: user ? 'exists' : 'null',
+      apiUrl: process.env.NEXT_PUBLIC_API_URL,
+      currentPath: window.location.pathname
+    })
+  }, [loading, isLoggedIn, user])
 
   if (loading) {
     return (
