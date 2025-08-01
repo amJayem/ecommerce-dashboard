@@ -11,7 +11,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang='en'>
-      <body>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        {/* Allow browser extensions to work without CSP conflicts */}
+        <meta httpEquiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' chrome-extension:; style-src 'self' 'unsafe-inline';" />
+      </head>
+      <body suppressHydrationWarning={true}>
         <Toaster />
         <AuthProvider>
           <QueryClientProviderWrapper>{children}</QueryClientProviderWrapper>

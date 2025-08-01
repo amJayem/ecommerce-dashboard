@@ -30,12 +30,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Check if user is authenticated
   const checkAuth = useCallback(async () => {
     try {
-      console.log('🔐 Checking authentication...')
       const response = await api.get('/me')
       console.log('✅ User authenticated:', response.data)
       setUser(response.data)
-    } catch (error) {
-      console.log('❌ Not authenticated:', error)
+    } catch (error: unknown) {
+      // Only log non-401 errors to reduce noise
+      const apiError = error as { response?: { status?: number } }
+      if (apiError?.response?.status !== 401) {
+        console.log('❌ Auth check failed:', apiError?.response?.status || 'Unknown error')
+      }
       setUser(null)
     } finally {
       setLoading(false)
