@@ -3,10 +3,17 @@
 
 import { useAuth } from '@/contexts/auth-context'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { LogoutButton } from '@/components/logout-button'
+import { useRouter } from 'next/navigation'
 
 export default function DashboardPage() {
   const { user, isLoggedIn, loading } = useAuth()
+  const router = useRouter()
+
+  const handleLogin = () => {
+    router.push('/login')
+  }
 
   if (loading) {
     return (
@@ -30,8 +37,11 @@ export default function DashboardPage() {
           <CardHeader>
             <CardTitle>Not Authenticated</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
             <p>Please log in to access the dashboard.</p>
+            <Button onClick={handleLogin} className="w-full sm:w-auto">
+              Login
+            </Button>
           </CardContent>
         </Card>
       </div>
