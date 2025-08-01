@@ -1,4 +1,4 @@
-// app/dashboard/components/auth-guard.tsx
+// src/app/dashboard/components/auth-guard.tsx
 'use client'
 
 import { useAuth } from '@/contexts/auth-context'
@@ -7,32 +7,20 @@ import { useEffect } from 'react'
 import { Skeleton } from '@/components/ui/skeleton'
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
-  const { isLoggedIn, loading, checkAuth } = useAuth()
+  const { isLoggedIn, loading } = useAuth()
   const router = useRouter()
 
-  // Check auth on mount only if not already logged in and not loading
+  // Redirect if not logged in
   useEffect(() => {
-    if (!isLoggedIn && !loading) {
-      console.log('🛡️ Auth guard: Checking auth status');
-      checkAuth();
-    } else if (loading) {
-      console.log('🛡️ Auth guard: Still loading, not checking auth');
-    } else if (isLoggedIn) {
-      console.log('🛡️ Auth guard: Already logged in, not checking auth');
-    }
-  }, [checkAuth, isLoggedIn, loading]);
-
-  // Redirect if not logged in (but only after loading is complete)
-  useEffect(() => {
+    console.log('🛡️ AuthGuard: State changed - loading:', loading, 'isLoggedIn:', isLoggedIn)
     if (!loading && !isLoggedIn) {
-      console.log('🛡️ Auth guard: Redirecting to login');
-      router.replace('/login');
+      console.log('🛡️ Redirecting to login')
+      router.replace('/login')
     }
-  }, [isLoggedIn, loading, router]);
+  }, [isLoggedIn, loading, router])
 
-  // Show loading skeleton while checking auth
+  // Show loading while checking
   if (loading) {
-    console.log('🛡️ Auth guard: Showing loading skeleton');
     return (
       <div className="p-6 space-y-4">
         <Skeleton className="h-8 w-48" />
@@ -43,13 +31,11 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     )
   }
 
-  // Don't render anything if not logged in (will redirect)
+  // Don't render if not logged in
   if (!isLoggedIn) {
-    console.log('🛡️ Auth guard: Not logged in, not rendering');
     return null
   }
 
-  console.log('🛡️ Auth guard: Rendering children');
   return <>{children}</>
 }
 

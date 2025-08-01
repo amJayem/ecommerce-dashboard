@@ -1,8 +1,8 @@
-// src/contexts/auth-context.tsx
+// src/contexts/auth-context-clean.tsx
 'use client'
 
 import { api } from '@/lib/axios'
-import { createContext, useContext, useCallback, useState, useEffect } from 'react'
+import { createContext, useContext, useCallback, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 
 type User = {
@@ -18,16 +18,24 @@ type AuthContextType = {
   loading: boolean
   login: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
+  checkAuth: () => Promise<void>
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+const AuthContext = createContext<AuthContextType>({
+  user: null,
+  isLoggedIn: false,
+  loading: true,
+  login: async () => {},
+  logout: async () => {},
+  checkAuth: async () => {}
+})
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
-  // Check if user is authenticated
+  // Clean checkAuth function
   const checkAuth = useCallback(async () => {
     try {
       console.log('🔐 Checking authentication...')
@@ -37,12 +45,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.log('❌ Not authenticated:', error)
       setUser(null)
+      // Redirect to login if not authenticated
+      if (typeof window !== 'undefined') {
+        router.replace('/login')
+      }
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [router])
 
-  // Login function
+  // Clean login function
   const login = useCallback(async (email: string, password: string) => {
     try {
       console.log('🔐 Logging in...')
@@ -66,7 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [router])
 
-  // Logout function
+  // Clean logout function
   const logout = useCallback(async () => {
     try {
       await api.post('/auth/logout')
@@ -78,18 +90,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [router])
 
-  // Check auth on mount
-  useEffect(() => {
-    checkAuth()
-  }, [checkAuth])
-
-  const value = {
+  const value = useMemo(() => ({
     user,
     isLoggedIn: !!user,
     loading,
     login,
-    logout
-  }
+    logout,
+    checkAuth
+  }), [user, loading, login, logout, checkAuth])
 
   return (
     <AuthContext.Provider value={value}>
@@ -104,4 +112,4 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider')
   }
   return context
-}
+} 

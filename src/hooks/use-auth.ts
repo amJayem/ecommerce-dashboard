@@ -4,25 +4,25 @@ import { useCallback } from 'react'
 import toast from 'react-hot-toast'
 
 export function useAuthActions() {
-  const { login, logout, checkAuth } = useAuth()
+  const { login, logout } = useAuth()
 
   const handleLogin = useCallback(async (email: string, password: string) => {
     try {
-      console.log('🔐 Auth hook: Starting login process');
-      await login(email, password);
-      console.log('✅ Auth hook: Login completed successfully');
-      toast.success('Login successful!');
+      console.log('🔐 Auth hook: Starting login process')
+      await login(email, password)
+      console.log('✅ Auth hook: Login completed successfully')
+      toast.success('Login successful!')
     } catch (error: unknown) {
-      console.error('❌ Auth hook: Login failed:', error);
+      console.error('❌ Auth hook: Login failed:', error)
       if (error && typeof error === 'object' && 'response' in error) {
-        const apiError = error as { response?: { data?: { message?: string } } };
-        toast.error(apiError.response?.data?.message || 'Login failed');
+        const apiError = error as { response?: { data?: { message?: string } } }
+        toast.error(apiError.response?.data?.message || 'Login failed')
       } else {
-        toast.error('Login failed');
+        toast.error('Login failed')
       }
-      throw error;
+      throw error
     }
-  }, [login]);
+  }, [login])
 
   const handleLogout = useCallback(async () => {
     try {
@@ -34,17 +34,8 @@ export function useAuthActions() {
     }
   }, [logout])
 
-  const handleCheckAuth = useCallback(async () => {
-    try {
-      await checkAuth()
-    } catch (error) {
-      console.error('Auth check error:', error)
-    }
-  }, [checkAuth])
-
   return {
     handleLogin,
-    handleLogout,
-    handleCheckAuth
+    handleLogout
   }
 } 

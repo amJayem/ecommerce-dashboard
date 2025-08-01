@@ -1,4 +1,4 @@
-// src/components/forms/login-form.tsx
+// src/components/forms/login-form-clean.tsx
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -7,10 +7,11 @@ import { LoginFormValues, loginSchema } from "@/lib/validations/auth";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { useAuthActions } from "@/hooks/use-auth";
+import { useAuth } from "@/contexts/auth-context-clean";
+import toast from "react-hot-toast";
 
 export function LoginForm() {
-  const { handleLogin } = useAuthActions();
+  const { login } = useAuth();
   const [loading, setLoading] = useState(false);
 
   const form = useForm<LoginFormValues>({
@@ -23,14 +24,21 @@ export function LoginForm() {
 
   const onSubmit = async (data: LoginFormValues) => {
     setLoading(true);
-    console.log('🔐 Login form: Starting login process for:', data.email);
-    
+
     try {
-      await handleLogin(data.email, data.password);
-      console.log('✅ Login form: Login process completed successfully');
-    } catch (error) {
-      console.error('❌ Login form: Login process failed:', error);
-      // Error is already handled in the hook
+      await login(data.email, data.password);
+      toast.success("Login successful!");
+    } catch (error: unknown) {
+      console.error("Login error:", error);
+
+      // Handle different error types
+      //   if (error.response?.data?.message) {
+      //     toast.error(error.response.data.message);
+      //   } else if (error.message) {
+      //     toast.error(error.message);
+      //   } else {
+      //     toast.error('Login failed. Please try again.');
+      //   }
     } finally {
       setLoading(false);
     }
@@ -43,16 +51,28 @@ export function LoginForm() {
     >
       <Input
         placeholder="Email"
-        type="email"
         {...form.register("email")}
         disabled={loading}
+        type="email"
       />
+      {form.formState.errors.email && (
+        <p className="text-red-500 text-sm">
+          {form.formState.errors.email.message}
+        </p>
+      )}
+
       <Input
         placeholder="Password"
-        type="password"
         {...form.register("password")}
         disabled={loading}
+        type="password"
       />
+      {form.formState.errors.password && (
+        <p className="text-red-500 text-sm">
+          {form.formState.errors.password.message}
+        </p>
+      )}
+
       <Button type="submit" className="w-full" disabled={loading}>
         {loading ? "Logging in..." : "Login"}
       </Button>
