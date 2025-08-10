@@ -1,3 +1,5 @@
+"use client";
+
 import {
   ChevronRight,
   LayoutDashboard,
@@ -28,6 +30,8 @@ import {
 } from '@radix-ui/react-collapsible'
 import { NavUser } from './nav-user'
 import Link from 'next/link'
+import { useActiveRoute } from '@/hooks/use-active-route'
+import { cn } from '@/lib/utils'
 
 const data = {
   user: {
@@ -40,13 +44,11 @@ const data = {
       title: "Dashboard",
       url: "/dashboard",
       icon: LayoutDashboard,
-      isActive: true,
     },
     {
       title: "Products",
       url: "/dashboard/products",
       icon: Package,
-      isActive: true,
       items: [
         { title: "All Products", url: "/dashboard/products" },
         { title: "Add Product", url: "/dashboard/products/new" },
@@ -58,7 +60,6 @@ const data = {
       title: "Orders",
       url: "/dashboard/orders",
       icon: ShoppingCart,
-      isActive: true,
       items: [
         { title: "All Orders", url: "/dashboard/orders" },
         { title: "Pending", url: "/dashboard/orders/pending" },
@@ -70,7 +71,6 @@ const data = {
       title: "Customers",
       url: "/dashboard/customers",
       icon: Users,
-      isActive: !true,
       items: [
         { title: "Customer List", url: "/dashboard/customers" },
         { title: "Reviews", url: "/dashboard/customers/reviews" },
@@ -80,7 +80,6 @@ const data = {
       title: "Access Control",
       url: "/dashboard/access-control",
       icon: ShieldCheck,
-      isActive: !true,
       items: [
         { title: "Users", url: "/dashboard/access-control/users" },
         { title: "Roles", url: "/dashboard/access-control/roles" },
@@ -91,7 +90,6 @@ const data = {
       title: "Settings",
       url: "/dashboard/settings",
       icon: Settings,
-      isActive: !true,
       items: [
         { title: "Profile", url: "/dashboard/settings/profile" },
         { title: "Notifications", url: "/dashboard/settings/notifications" },
@@ -102,22 +100,35 @@ const data = {
 }
 
 export function AppSidebar() {
+  const { isActiveRoute, isActiveSubRoute } = useActiveRoute()
+
   return (
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Platform</SidebarGroupLabel>
           <SidebarMenu>
-            {data?.navMain.map((item) =>
-              item?.items?.length ? (
+            {data?.navMain.map((item) => {
+              const isActive = isActiveRoute(item.url, true) // Use exact matching for main items
+              const hasActiveSubItem = item.items?.some(subItem => 
+                isActiveSubRoute(item.url, subItem.url)
+              )
+              
+              return item?.items?.length ? (
                 <Collapsible
                   key={item.title}
                   asChild
-                  defaultOpen={item.isActive}
+                  defaultOpen={isActive || hasActiveSubItem}
                   className='group/collapsible'>
                   <SidebarMenuItem>
                     <CollapsibleTrigger asChild>
-                      <SidebarMenuButton tooltip={item.title}>
+                      <SidebarMenuButton 
+                        tooltip={item.title}
+                        isActive={isActive || hasActiveSubItem}
+                        className={cn(
+                          (isActive || hasActiveSubItem) && "bg-primary/10 text-primary border-l-2 border-primary shadow-sm"
+                        )}
+                      >
                         {item.icon && <item.icon />}
                         <span>{item.title}</span>
                         <ChevronRight className='ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90' />
@@ -125,22 +136,39 @@ export function AppSidebar() {
                     </CollapsibleTrigger>
                     <CollapsibleContent>
                       <SidebarMenuSub>
-                        {item.items?.map((subItem) => (
-                          <SidebarMenuSubItem key={subItem.title}>
-                            <SidebarMenuSubButton asChild>
-                              <Link href={subItem.url}>
-                                <span>{subItem.title}</span>
-                              </Link>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        ))}
+                        {item.items?.map((subItem) => {
+                          const isSubActive = isActiveSubRoute(item.url, subItem.url)
+                          
+                          return (
+                            <SidebarMenuSubItem key={subItem.title}>
+                              <SidebarMenuSubButton 
+                                asChild
+                                isActive={isSubActive}
+                                className={cn(
+                                  isSubActive && "bg-primary/10 text-primary border-1 border-primary shadow-sm font-medium"
+                                )}
+                              >
+                                <Link href={subItem.url}>
+                                  <span>{subItem.title}</span>
+                                </Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          )
+                        })}
                       </SidebarMenuSub>
                     </CollapsibleContent>
                   </SidebarMenuItem>
                 </Collapsible>
               ) : (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild tooltip={item.title}>
+                  <SidebarMenuButton 
+                    asChild 
+                    tooltip={item.title}
+                    isActive={isActive}
+                    className={cn(
+                      isActive && "bg-primary/10 text-primary border-l-4 border-primary shadow-sm"
+                    )}
+                  >
                     <Link
                       href={item.url ?? '/'}
                       className='flex items-center gap-2'>
@@ -150,7 +178,7 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               )
-            )}
+            })}
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
