@@ -8,12 +8,13 @@ export const productSchema = z.object({
   salePrice: z.coerce.number().optional(),
   stock: z.coerce.number().min(0, 'Stock is required'),
   categoryId: z.string().min(1, 'Category is required'),
-  images: z
-    .array(z.string().url('Must be valid image URLs'))
-    .min(1, 'At least one image required'),
+  coverImage: z.string().url('Must be a valid image URL').min(1, 'Cover image is required'),
+  images: z.array(z.string().url('Must be valid image URLs')).default([]),
   status: z.enum(['draft', 'published']),
   isFeatured: z.boolean(),
   brand: z.string().optional(),
   tags: z.array(z.string()).default([]),
-  sku: z.string().optional()
+  sku: z.string().optional(),
+  weight: z.coerce.number().optional(),
+  discount: z.coerce.number().optional()
 })

@@ -4,6 +4,9 @@ import { Product } from '@/types/product'
 
 const PRODUCTS_KEY = ['products']
 
+// Type for creating a product (without id)
+type CreateProductData = Omit<Product, 'id' | 'createdAt' | 'updatedAt'>
+
 export function useProducts() {
   return useQuery({
     queryKey: PRODUCTS_KEY,
@@ -15,7 +18,7 @@ export function useCreateProduct() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (data: Product) =>
+    mutationFn: async (data: CreateProductData) =>
       (await api.post('/products', data)).data,
     onSuccess: () => {
       // Invalidate and refetch product list

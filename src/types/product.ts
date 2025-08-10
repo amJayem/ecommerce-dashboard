@@ -1,20 +1,21 @@
 export interface Product {
   id: number;
   name: string;
-  price: number;
-  imageUrl: string;
-  discount?: number;
   slug: string;
   description: string;
-  salePrice: number;
+  price: number;
+  salePrice?: number;
   stock: number;
-  categoryId: string;
-  images: object;
-  status: string; //enum
+  status: string; // 'draft' | 'published'
   isFeatured: boolean;
-  brand: string;
-  tags: object;
-  sku: string;
+  brand?: string;
+  sku?: string;
+  weight?: number;
+  discount?: number;
+  coverImage?: string;
+  images: string[];
+  tags: string[];
+  categoryId?: string;
   createdAt?: string;
   updatedAt?: string;
 }
