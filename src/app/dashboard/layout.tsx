@@ -1,4 +1,6 @@
 // src/app/dashboard/layout.tsx
+'use client'
+
 import { AppSidebar } from '@/components/app-sidebar'
 import HeaderBreadcrumb from '@/components/header-breadcrumb'
 import {

@@ -1,41 +1,44 @@
-'use client'
+"use client";
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
-import { Switch } from '@/components/ui/switch'
-import { Textarea } from '@/components/ui/textarea'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { useCreateProduct, useProduct, useUpdateProduct } from '@/hooks/use-products';
-import { productSchema } from '@/lib/validations/product-schema'
-import { zodResolver } from '@hookform/resolvers/zod'
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  useCreateProduct,
+  useProduct,
+  useUpdateProduct,
+} from "@/hooks/use-products";
+import { productSchema } from "@/lib/validations/product-schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { DollarSign, Package, Plus, Save, Tag, X } from "lucide-react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 import {
   Controller,
   FormProvider,
   Resolver,
   SubmitHandler,
-  useForm
-} from 'react-hook-form'
-import toast from 'react-hot-toast'
-import { FormControl, FormItem, FormLabel, FormMessage } from '../ui/form'
-import { useEffect, useState } from 'react';
-import { 
-  Package, 
-  DollarSign, 
-  Tag, 
-  Image, 
-  Save, 
-  Plus,
-  X
-} from 'lucide-react'
+  useForm,
+} from "react-hook-form";
+import toast from "react-hot-toast";
+import { FormControl, FormItem, FormLabel, FormMessage } from "../ui/form";
 
 type ProductFormValues = {
   name: string;
@@ -57,10 +60,18 @@ type ProductFormValues = {
 };
 
 const categories = [
-  { id: 'cat1', name: 'Fruits' },
-  { id: 'cat2', name: 'Nuts' },
-  { id: 'cat3', name: 'Oils' }
-]
+  { id: "fruits", name: "Fruits", icon: "Apple" }, // 🍎 Fresh seasonal fruits
+  { id: "vegetables", name: "Vegetables", icon: "Carrot" }, // 🥕 Farm-fresh vegetables
+  { id: "meat", name: "Meat", icon: "Drumstick" }, // 🍗 Fresh & halal meat
+  { id: "fish", name: "Fish", icon: "Fish" }, // 🐟 River & sea fish
+  { id: "bakery", name: "Bakery", icon: "Croissant" }, // 🥐 Bread, cakes & pastries
+  { id: "dairy", name: "Dairy & Eggs", icon: "Cheese" }, // 🥛 Milk, cheese, butter
+  { id: "spices", name: "Spices & Condiments", icon: "Flame" }, // 🌶️ Local & exotic spices
+  { id: "grains", name: "Rice, Lentils & Staples", icon: "Wheat" }, // 🌾 Rice, lentils, pulses
+  { id: "oils", name: "Cooking Oils & Ghee", icon: "Oil" }, // 🛢️ Mustard, olive, sunflower oil
+  { id: "snacks", name: "Snacks & Beverages", icon: "Cookie" }, // 🍪 Snacks, beverages
+  { id: "household", name: "Household Essentials", icon: "Home" }, // 🧼 Cleaning supplies, toiletries
+];
 
 interface AddProductFormProps {
   productId?: string | null;
@@ -69,26 +80,28 @@ interface AddProductFormProps {
 export function AddProductForm({ productId }: AddProductFormProps) {
   const { mutateAsync, isPending } = useCreateProduct();
   const { mutateAsync: updateProduct } = useUpdateProduct();
-  const { data: product, isLoading: isProductLoading } = useProduct(productId ? Number(productId) : undefined);
-  const [newTag, setNewTag] = useState('');
+  const { data: product, isLoading: isProductLoading } = useProduct(
+    productId ? Number(productId) : undefined
+  );
+  const [newTag, setNewTag] = useState("");
 
   const defaultValues: ProductFormValues = {
-    name: '',
-    slug: '',
-    description: '',
+    name: "",
+    slug: "",
+    description: "",
     price: 0,
     salePrice: undefined,
     stock: 0,
-    categoryId: '',
-    coverImage: '',
+    categoryId: "",
+    coverImage: "",
     images: [],
-    status: 'draft',
+    status: "draft",
     isFeatured: false,
-    brand: '',
+    brand: "",
     tags: [],
-    sku: '',
+    sku: "",
     weight: undefined,
-    discount: undefined
+    discount: undefined,
   };
 
   const form = useForm<ProductFormValues>({
@@ -102,11 +115,11 @@ export function AddProductForm({ productId }: AddProductFormProps) {
     formState: { errors },
     setValue,
     watch,
-    reset
+    reset,
   } = form;
 
-  const watchedTags = watch('tags');
-  const watchedImages = watch('images');
+  const watchedTags = watch("tags");
+  const watchedImages = watch("images");
 
   useEffect(() => {
     if (product && productId) {
@@ -114,12 +127,12 @@ export function AddProductForm({ productId }: AddProductFormProps) {
         ...product,
         images: Array.isArray(product.images)
           ? product.images
-          : typeof product.images === 'string'
+          : typeof product.images === "string"
           ? [product.images]
           : [],
         tags: Array.isArray(product.tags)
           ? product.tags
-          : typeof product.tags === 'string'
+          : typeof product.tags === "string"
           ? [product.tags]
           : [],
       });
@@ -130,44 +143,47 @@ export function AddProductForm({ productId }: AddProductFormProps) {
     try {
       if (productId) {
         await updateProduct({ id: Number(productId), ...data });
-        toast.success('Product updated successfully!');
+        toast.success("Product updated successfully!");
       } else {
         await mutateAsync({
           ...data,
           // id: 0, // dummy, backend should ignore or generate
           salePrice: data.salePrice || undefined,
-          brand: data.brand || '',
-          sku: data.sku || '',
+          brand: data.brand || "",
+          sku: data.sku || "",
           weight: data.weight || undefined,
           discount: data.discount || undefined,
         });
-        toast.success('Product created successfully!');
+        toast.success("Product created successfully!");
         form.reset();
       }
     } catch (err: unknown) {
-      const errorMsg = err instanceof Error ? err.message : 'An error occurred';
+      const errorMsg = err instanceof Error ? err.message : "An error occurred";
       toast.error(errorMsg);
     }
   };
 
   const addTag = () => {
     if (newTag.trim() && !watchedTags.includes(newTag.trim())) {
-      setValue('tags', [...watchedTags, newTag.trim()]);
-      setNewTag('');
+      setValue("tags", [...watchedTags, newTag.trim()]);
+      setNewTag("");
     }
   };
 
   const removeTag = (tagToRemove: string) => {
-    setValue('tags', watchedTags.filter(tag => tag !== tagToRemove));
+    setValue(
+      "tags",
+      watchedTags.filter((tag) => tag !== tagToRemove)
+    );
   };
 
   const addImageField = () => {
-    setValue('images', [...watchedImages, '']);
+    setValue("images", [...watchedImages, ""]);
   };
 
   const removeImageField = (index: number) => {
     const newImages = watchedImages.filter((_, i) => i !== index);
-    setValue('images', newImages);
+    setValue("images", newImages);
   };
 
   if (isProductLoading) {
@@ -183,24 +199,34 @@ export function AddProductForm({ productId }: AddProductFormProps) {
 
   return (
     <FormProvider {...form}>
-      <form onSubmit={handleSubmit(onSubmit)} className='space-y-8 max-w-4xl mx-auto'>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="space-y-8 max-w-4xl mx-auto"
+      >
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">
-              {productId ? 'Edit Product' : 'Add New Product'}
+              {productId ? "Edit Product" : "Add New Product"}
             </h1>
             <p className="text-muted-foreground">
-              {productId ? 'Update your product information' : 'Create a new product for your store'}
+              {productId
+                ? "Update your product information"
+                : "Create a new product for your store"}
             </p>
           </div>
           <Button
-            type='submit'
+            type="submit"
             size="lg"
-            className='bg-primary hover:bg-primary/90'
-            disabled={isPending}>
+            className="bg-primary hover:bg-primary/90"
+            disabled={isPending}
+          >
             <Save className="mr-2 h-4 w-4" />
-            {isPending ? 'Saving...' : (productId ? 'Update Product' : 'Create Product')}
+            {isPending
+              ? "Saving..."
+              : productId
+              ? "Update Product"
+              : "Create Product"}
           </Button>
         </div>
 
@@ -216,12 +242,14 @@ export function AddProductForm({ productId }: AddProductFormProps) {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor='name' className="text-sm font-medium">Product Name *</Label>
-                <Input 
-                  {...register('name')} 
-                  placeholder='e.g. Organic Raw Honey' 
+                <Label htmlFor="name" className="text-sm font-medium">
+                  Product Name *
+                </Label>
+                <Input
+                  {...register("name")}
+                  placeholder="e.g. Organic Raw Honey"
                   className="h-10"
                 />
                 {errors.name && (
@@ -230,10 +258,12 @@ export function AddProductForm({ productId }: AddProductFormProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor='slug' className="text-sm font-medium">Slug *</Label>
-                <Input 
-                  {...register('slug')} 
-                  placeholder='e.g. organic-raw-honey' 
+                <Label htmlFor="slug" className="text-sm font-medium">
+                  Slug *
+                </Label>
+                <Input
+                  {...register("slug")}
+                  placeholder="e.g. organic-raw-honey"
                   className="h-10"
                 />
                 {errors.slug && (
@@ -242,33 +272,39 @@ export function AddProductForm({ productId }: AddProductFormProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor='brand' className="text-sm font-medium">Brand</Label>
-                <Input 
-                  {...register('brand')} 
-                  placeholder='e.g. Nature&apos;s Best' 
+                <Label htmlFor="brand" className="text-sm font-medium">
+                  Brand
+                </Label>
+                <Input
+                  {...register("brand")}
+                  placeholder="e.g. Nature's Best"
                   className="h-10"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor='sku' className="text-sm font-medium">SKU</Label>
-                <Input 
-                  {...register('sku')} 
-                  placeholder='e.g. HONEY-001' 
+                <Label htmlFor="sku" className="text-sm font-medium">
+                  SKU
+                </Label>
+                <Input
+                  {...register("sku")}
+                  placeholder="e.g. HONEY-001"
                   className="h-10"
                 />
               </div>
 
               <Controller
-                name='categoryId'
+                name="categoryId"
                 control={form.control}
                 render={({ field }) => (
                   <FormItem className="space-y-2">
-                    <FormLabel className="text-sm font-medium">Category *</FormLabel>
+                    <FormLabel className="text-sm font-medium">
+                      Category *
+                    </FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger className="h-10">
-                          <SelectValue placeholder='Select a category' />
+                          <SelectValue placeholder="Select a category" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -287,26 +323,33 @@ export function AddProductForm({ productId }: AddProductFormProps) {
               />
 
               <div className="space-y-2">
-                <Label htmlFor='status' className="text-sm font-medium">Status</Label>
+                <Label htmlFor="status" className="text-sm font-medium">
+                  Status
+                </Label>
                 <Select
-                  onValueChange={(val) => setValue('status', val as 'published' | 'draft')}
-                  defaultValue={watch('status')}>
+                  onValueChange={(val) =>
+                    setValue("status", val as "published" | "draft")
+                  }
+                  defaultValue={watch("status")}
+                >
                   <SelectTrigger className="h-10">
-                    <SelectValue placeholder='Select status' />
+                    <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value='draft'>Draft</SelectItem>
-                    <SelectItem value='published'>Published</SelectItem>
+                    <SelectItem value="draft">Draft</SelectItem>
+                    <SelectItem value="published">Published</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor='description' className="text-sm font-medium">Description *</Label>
-              <Textarea 
-                {...register('description')} 
-                rows={4} 
+              <Label htmlFor="description" className="text-sm font-medium">
+                Description *
+              </Label>
+              <Textarea
+                {...register("description")}
+                rows={4}
                 placeholder="Describe your product in detail..."
                 className="resize-none"
               />
@@ -329,14 +372,18 @@ export function AddProductForm({ productId }: AddProductFormProps) {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">
-                <Label htmlFor='price' className="text-sm font-medium">Regular Price *</Label>
+                <Label htmlFor="price" className="text-sm font-medium">
+                  Regular Price *
+                </Label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">$</span>
-                  <Input 
-                    type='number' 
-                    {...register('price')} 
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
+                    $
+                  </span>
+                  <Input
+                    type="number"
+                    {...register("price")}
                     className="h-10 pl-8"
                     placeholder="0.00"
                     step="0.01"
@@ -349,12 +396,16 @@ export function AddProductForm({ productId }: AddProductFormProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor='salePrice' className="text-sm font-medium">Sale Price</Label>
+                <Label htmlFor="salePrice" className="text-sm font-medium">
+                  Sale Price
+                </Label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">$</span>
-                  <Input 
-                    type='number' 
-                    {...register('salePrice')} 
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
+                    $
+                  </span>
+                  <Input
+                    type="number"
+                    {...register("salePrice")}
                     className="h-10 pl-8"
                     placeholder="0.00"
                     step="0.01"
@@ -364,10 +415,12 @@ export function AddProductForm({ productId }: AddProductFormProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor='stock' className="text-sm font-medium">Stock Quantity *</Label>
-                <Input 
-                  type='number' 
-                  {...register('stock')} 
+                <Label htmlFor="stock" className="text-sm font-medium">
+                  Stock Quantity *
+                </Label>
+                <Input
+                  type="number"
+                  {...register("stock")}
                   className="h-10"
                   placeholder="0"
                   min="0"
@@ -380,11 +433,13 @@ export function AddProductForm({ productId }: AddProductFormProps) {
 
             <div className="flex items-center space-x-2 p-4 bg-muted/50 rounded-lg">
               <Switch
-                id='isFeatured'
-                checked={watch('isFeatured')}
-                onCheckedChange={(val) => setValue('isFeatured', val)}
+                id="isFeatured"
+                checked={watch("isFeatured")}
+                onCheckedChange={(val) => setValue("isFeatured", val)}
               />
-              <Label htmlFor='isFeatured' className="text-sm font-medium">Featured Product</Label>
+              <Label htmlFor="isFeatured" className="text-sm font-medium">
+                Featured Product
+              </Label>
               <span className="text-xs text-muted-foreground ml-2">
                 Featured products appear prominently on your store
               </span>
@@ -396,7 +451,13 @@ export function AddProductForm({ productId }: AddProductFormProps) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Image className="h-5 w-5" />
+              <Image
+                src={""}
+                width={50}
+                height={50}
+                alt="cover image"
+                className="h-5 w-5"
+              />
               Cover Image
             </CardTitle>
             <CardDescription>
@@ -405,9 +466,11 @@ export function AddProductForm({ productId }: AddProductFormProps) {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor='coverImage' className="text-sm font-medium">Cover Image URL *</Label>
+              <Label htmlFor="coverImage" className="text-sm font-medium">
+                Cover Image URL *
+              </Label>
               <Input
-                {...register('coverImage')}
+                {...register("coverImage")}
                 placeholder="https://example.com/cover-image.jpg"
                 className="h-10"
               />
@@ -422,7 +485,13 @@ export function AddProductForm({ productId }: AddProductFormProps) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Image className="h-5 w-5" />
+              <Image
+                src={""}
+                width={50}
+                height={50}
+                alt="cover image"
+                className="h-5 w-5"
+              />
               Additional Images
             </CardTitle>
             <CardDescription>
@@ -480,7 +549,9 @@ export function AddProductForm({ productId }: AddProductFormProps) {
                 value={newTag}
                 onChange={(e) => setNewTag(e.target.value)}
                 placeholder="Enter a tag"
-                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+                onKeyPress={(e) =>
+                  e.key === "Enter" && (e.preventDefault(), addTag())
+                }
                 className="flex-1"
               />
               <Button
@@ -492,7 +563,7 @@ export function AddProductForm({ productId }: AddProductFormProps) {
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
-            
+
             {watchedTags.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {watchedTags.map((tag, index) => (
@@ -518,15 +589,20 @@ export function AddProductForm({ productId }: AddProductFormProps) {
             Cancel
           </Button>
           <Button
-            type='submit'
+            type="submit"
             size="lg"
-            className='bg-primary hover:bg-primary/90'
-            disabled={isPending}>
+            className="bg-primary hover:bg-primary/90"
+            disabled={isPending}
+          >
             <Save className="mr-2 h-4 w-4" />
-            {isPending ? 'Saving...' : (productId ? 'Update Product' : 'Create Product')}
+            {isPending
+              ? "Saving..."
+              : productId
+              ? "Update Product"
+              : "Create Product"}
           </Button>
         </div>
       </form>
     </FormProvider>
-  )
+  );
 }
