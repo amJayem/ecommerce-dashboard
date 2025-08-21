@@ -13,6 +13,7 @@ export interface Product {
   weight?: number;
   discount?: number;
   coverImage?: string;
+  imageUrl?: string;
   images: string[];
   tags: string[];
   categoryId?: string;
